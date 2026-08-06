@@ -45,13 +45,13 @@ func main() {
 func handleConnection(conn net.Conn) {
 	defer conn.Close()
 
-	const buffSize = 64 * 1024
+	var buffSize = 64 * 1024
 
-	client := core.Consumer{
+	consumer := core.Consumer{
 		ID:   uuid.New(),
 		Conn: conn,
 	}
-	reader := bufio.NewReaderSize(client.Conn, buffSize)
+	reader := bufio.NewReaderSize(consumer.Conn, buffSize)
 
 	for {
 		msg, err := reader.ReadString('\n')
@@ -60,6 +60,13 @@ func handleConnection(conn net.Conn) {
 			break
 		}
 
-		_ = strings.Split(msg, " ")
+		cmd := strings.Split(msg, " ")
+
+		if len(cmd) == 2 {
+			switch cmd[0] {
+			case "sub":
+			case "unsub":
+			}
+		}
 	}
 }
