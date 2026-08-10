@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/CallMeWasabi/socket-go/internal/core"
-	"github.com/google/uuid"
 )
 
 func main() {
@@ -42,15 +41,14 @@ func main() {
 	}
 }
 
+var Broker = core.NewBroker()
+
 func handleConnection(conn net.Conn) {
 	defer conn.Close()
 
-	var buffSize = 64 * 1024
-
-	consumer := core.Consumer{
-		ID:   uuid.New(),
-		Conn: conn,
-	}
+	buffSize := 4 * 1024
+	defaultQueueSize := 128
+	consumer := core.NewConsumer(conn, defaultQueueSize)
 	reader := bufio.NewReaderSize(consumer.Conn, buffSize)
 
 	for {

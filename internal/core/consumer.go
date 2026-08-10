@@ -2,25 +2,21 @@ package core
 
 import (
 	"net"
-	"slices"
 
 	"github.com/google/uuid"
 )
 
 type Consumer struct {
-	ID     uuid.UUID // 16 byte
-	Conn   net.Conn  // 16 byte
-	Topics []string
+	Messages chan *Message
+
+	ID   uuid.UUID // 16 byte
+	Conn net.Conn  // 16 byte
 }
 
-// sub topic
-func (c *Consumer) Subscribe(z *Zookeeper, topic string) error {
-	if slices.Contains(c.Topics, topic) {
-		return nil
+func NewConsumer(conn net.Conn, queueSize int) *Consumer {
+	return &Consumer{
+		Messages: make(chan *Message, queueSize),
+		ID:       uuid.New(),
+		Conn:     conn,
 	}
-
-	c.Topics = append(c.Topics, topic)
-	z.AddConsumer(c, topic)
-
-	return nil
 }
