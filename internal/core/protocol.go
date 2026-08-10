@@ -6,8 +6,7 @@ type Payload struct {
 	PayloadLength int
 }
 
-type Cmd struct {
-}
+type Cmd struct{}
 
 type Message struct {
 	Content       [1024]byte

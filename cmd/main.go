@@ -48,6 +48,7 @@ func handleConnection(conn net.Conn) {
 
 	buffSize := 4 * 1024
 	defaultQueueSize := 128
+
 	consumer := core.NewConsumer(conn, defaultQueueSize)
 	reader := bufio.NewReaderSize(consumer.Conn, buffSize)
 

@@ -7,6 +7,8 @@ import (
 type Broker struct {
 	addTopic    chan string
 	removeTopic chan string
+	subscribe   chan *ConsumerGroup
+	unsubscribe chan uuid.UUID
 
 	ID uuid.UUID
 
@@ -19,6 +21,7 @@ func NewBroker() *Broker {
 	return &Broker{
 		addTopic:    make(chan string),
 		removeTopic: make(chan string),
+		subscribe:   make(chan *ConsumerGroup),
 
 		ID: uuid.New(),
 

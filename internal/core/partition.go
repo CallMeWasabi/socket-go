@@ -1,6 +1,8 @@
 package core
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+)
 
 type Partition struct {
 	Messages chan *Message
