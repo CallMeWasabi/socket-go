@@ -25,7 +25,6 @@ func newTopic(name string) *Topic {
 }
 
 func (t *Topic) Run() {
-outer:
 	for {
 		select {
 		case c := <-t.assign:
@@ -34,29 +33,16 @@ outer:
 			}
 
 			t.consumers[c.ID] = c
-
 		case c := <-t.unassign:
 			if _, ok := t.consumers[c.ID]; !ok {
 				continue
 			}
 
 			delete(t.consumers, c.ID)
-			if len(t.consumers) == 0 {
-				break outer
-			}
-
 		case msg := <-t.messages:
 			for _, c := range t.consumers {
 				c.message <- msg
 			}
 		}
 	}
-
-	t.Close()
-}
-
-func (t *Topic) Close() {
-	close(t.assign)
-	close(t.unassign)
-	close(t.messages)
 }
