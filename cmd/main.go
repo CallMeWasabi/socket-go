@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"strings"
@@ -58,13 +59,13 @@ func handleConnection(conn net.Conn) {
 	for {
 		msg, err := reader.ReadString('\n')
 		if err != nil {
-			log.Printf("read error: %v", err)
+			if err != io.EOF {
+				log.Printf("read error: %v", err)
+			}
 			break
 		}
 
 		cmd := strings.Split(strings.TrimSpace(msg), " ")
-
-		fmt.Printf("recieve cmd: %v, len: %d\n", cmd, len(cmd))
 
 		if len(cmd) == 1 {
 			switch cmd[0] {
@@ -80,7 +81,7 @@ func handleConnection(conn net.Conn) {
 					C:     consumer,
 				}
 
-				consumer.Conn.Write(fmt.Appendf([]byte(""), "Subscribe topic %s success\n", name))
+				consumer.Write(fmt.Appendf([]byte(""), "Subscribe topic %s success\n", name))
 			case "unsub":
 				name := cmd[1]
 				Broker.Unsubscribe <- &core.UnsubscribeCmd{
@@ -88,7 +89,7 @@ func handleConnection(conn net.Conn) {
 					C:     consumer,
 				}
 
-				consumer.Conn.Write(fmt.Appendf([]byte(""), "Unsubscribe topic %s success\n", name))
+				consumer.Write(fmt.Appendf([]byte(""), "Unsubscribe topic %s success\n", name))
 			}
 		} else if len(cmd) == 3 {
 			switch cmd[0] {
@@ -104,6 +105,4 @@ func handleConnection(conn net.Conn) {
 			}
 		}
 	}
-
-	consumer.Close()
 }

@@ -28,7 +28,9 @@ func (c *Consumer) WritePump() {
 	}
 }
 
-func (c *Consumer) Close() {
-	close(c.message)
-	c.Conn.Close()
+func (c *Consumer) Write(b []byte) {
+	msg := &Message{}
+	copy(msg.Content[:], b)
+
+	c.message <- msg
 }
