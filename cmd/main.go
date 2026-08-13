@@ -51,12 +51,6 @@ func handleConnection(conn net.Conn) {
 	consumer := core.NewConsumer(conn, 128)
 
 	buffSize := 4 * 1024
-<<<<<<< HEAD
-=======
-	defaultQueueSize := 128
-
-	consumer := core.NewConsumer(conn, defaultQueueSize)
->>>>>>> 558ba0f7335a6e2aef0b7a94b2f2033ec142da3d
 	reader := bufio.NewReaderSize(consumer.Conn, buffSize)
 
 	go consumer.WritePump()

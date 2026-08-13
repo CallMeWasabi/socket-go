@@ -8,16 +8,9 @@ import (
 
 // Broker add consumer, delete consumer, routing msg partition
 type Broker struct {
-<<<<<<< HEAD
 	Subscribe   chan *SubscribeCmd
 	Unsubscribe chan *UnsubscribeCmd
 	Publish     chan *Message
-=======
-	addTopic    chan string
-	removeTopic chan string
-	subscribe   chan *ConsumerGroup
-	unsubscribe chan uuid.UUID
->>>>>>> 558ba0f7335a6e2aef0b7a94b2f2033ec142da3d
 
 	ID uuid.UUID
 
@@ -26,15 +19,9 @@ type Broker struct {
 
 func NewBroker() *Broker {
 	return &Broker{
-<<<<<<< HEAD
 		Subscribe:   make(chan *SubscribeCmd),
 		Unsubscribe: make(chan *UnsubscribeCmd),
 		Publish:     make(chan *Message),
-=======
-		addTopic:    make(chan string),
-		removeTopic: make(chan string),
-		subscribe:   make(chan *ConsumerGroup),
->>>>>>> 558ba0f7335a6e2aef0b7a94b2f2033ec142da3d
 
 		ID: uuid.New(),
 
