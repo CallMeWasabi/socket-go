@@ -1,12 +1,19 @@
 package core
 
-// align the struct from biggest size to reduce internal padding
+// Payload align the struct from biggest size to reduce internal padding
 type Payload struct {
 	Payload       [1024]byte
 	PayloadLength int
 }
 
-type Cmd struct {
+type SubscribeCmd struct {
+	Topic string
+	C     *Consumer
+}
+
+type UnsubscribeCmd struct {
+	Topic string
+	C     *Consumer
 }
 
 type Message struct {

@@ -12,6 +12,8 @@ import (
 	"github.com/CallMeWasabi/socket-go/internal/core"
 )
 
+var Broker = core.NewBroker()
+
 func main() {
 	const port = 8080
 
@@ -30,6 +32,8 @@ func main() {
 	}
 	defer listener.Close()
 
+	go Broker.Run()
+
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
@@ -41,15 +45,15 @@ func main() {
 	}
 }
 
-var Broker = core.NewBroker()
-
 func handleConnection(conn net.Conn) {
 	defer conn.Close()
 
+	consumer := core.NewConsumer(conn, 128)
+
 	buffSize := 4 * 1024
-	defaultQueueSize := 128
-	consumer := core.NewConsumer(conn, defaultQueueSize)
 	reader := bufio.NewReaderSize(consumer.Conn, buffSize)
+
+	go consumer.WritePump()
 
 	for {
 		msg, err := reader.ReadString('\n')
@@ -58,13 +62,48 @@ func handleConnection(conn net.Conn) {
 			break
 		}
 
-		cmd := strings.Split(msg, " ")
+		cmd := strings.Split(strings.TrimSpace(msg), " ")
 
-		if len(cmd) == 2 {
+		fmt.Printf("recieve cmd: %v, len: %d\n", cmd, len(cmd))
+
+		if len(cmd) == 1 {
+			switch cmd[0] {
+			case "topics":
+				consumer.Conn.Write(Broker.Topics())
+			}
+		} else if len(cmd) == 2 {
 			switch cmd[0] {
 			case "sub":
+				name := cmd[1]
+				Broker.Subscribe <- &core.SubscribeCmd{
+					Topic: name,
+					C:     consumer,
+				}
+
+				consumer.Conn.Write(fmt.Appendf([]byte(""), "Subscribe topic %s success\n", name))
 			case "unsub":
+				name := cmd[1]
+				Broker.Unsubscribe <- &core.UnsubscribeCmd{
+					Topic: name,
+					C:     consumer,
+				}
+
+				consumer.Conn.Write(fmt.Appendf([]byte(""), "Unsubscribe topic %s success\n", name))
+			}
+		} else if len(cmd) == 3 {
+			switch cmd[0] {
+			case "publish":
+				contentLength := len(cmd[2])
+				msg := &core.Message{
+					Topic:         cmd[1],
+					ContentLength: contentLength,
+				}
+				copy(msg.Content[:], cmd[2])
+
+				Broker.Publish <- msg
 			}
 		}
 	}
+
+	consumer.Close()
 }

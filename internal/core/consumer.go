@@ -7,16 +7,28 @@ import (
 )
 
 type Consumer struct {
-	Messages chan *Message
-
+	Conn net.Conn  // 16 - 64 byte
 	ID   uuid.UUID // 16 byte
-	Conn net.Conn  // 16 byte
+
+	message chan *Message // 8 byte
 }
 
 func NewConsumer(conn net.Conn, queueSize int) *Consumer {
 	return &Consumer{
-		Messages: make(chan *Message, queueSize),
-		ID:       uuid.New(),
-		Conn:     conn,
+		Conn: conn,
+		ID:   uuid.New(),
+
+		message: make(chan *Message, queueSize),
 	}
+}
+
+func (c *Consumer) WritePump() {
+	for msg := range c.message {
+		c.Conn.Write(msg.Content[:msg.ContentLength])
+	}
+}
+
+func (c *Consumer) Close() {
+	close(c.message)
+	c.Conn.Close()
 }

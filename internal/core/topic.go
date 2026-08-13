@@ -3,47 +3,60 @@ package core
 import "github.com/google/uuid"
 
 type Topic struct {
-	AddPartition    chan bool
-	RemovePartition chan bool
+	assign   chan *Consumer
+	unassign chan *Consumer
+	messages chan *Message
 
-	AddGroup    chan *ConsumerGroup
-	RemoveGroup chan uuid.UUID
+	name string
 
-	Name string
-
-	partitions []*Partition
+	consumers map[uuid.UUID]*Consumer
 }
 
-const defaultQueueSize = 128
-
-func NewTopic(name string, partitionSize int) *Topic {
-	partitions := make([]*Partition, 0, partitionSize)
-	for i := range partitionSize {
-		partitions[i] = NewPartition(i, defaultQueueSize)
-	}
-
+func newTopic(name string) *Topic {
 	return &Topic{
-		AddPartition:    make(chan bool),
-		RemovePartition: make(chan bool),
+		assign:   make(chan *Consumer),
+		unassign: make(chan *Consumer),
+		messages: make(chan *Message, 128),
 
-		AddGroup:    make(chan *ConsumerGroup),
-		RemoveGroup: make(chan uuid.UUID),
+		name: name,
 
-		Name: name,
-
-		partitions: partitions,
+		consumers: make(map[uuid.UUID]*Consumer),
 	}
 }
 
 func (t *Topic) Run() {
+outer:
 	for {
 		select {
-		case _ = <-t.AddPartition:
-			partition := NewPartition(len(t.partitions)+1, defaultQueueSize)
+		case c := <-t.assign:
+			if _, ok := t.consumers[c.ID]; ok {
+				continue
+			}
 
-			t.partitions = append(t.partitions, partition)
-		case _ = <-t.RemovePartition:
-			t.partitions = t.partitions[:len(t.partitions)-1]
+			t.consumers[c.ID] = c
+
+		case c := <-t.unassign:
+			if _, ok := t.consumers[c.ID]; !ok {
+				continue
+			}
+
+			delete(t.consumers, c.ID)
+			if len(t.consumers) == 0 {
+				break outer
+			}
+
+		case msg := <-t.messages:
+			for _, c := range t.consumers {
+				c.message <- msg
+			}
 		}
 	}
+
+	t.Close()
+}
+
+func (t *Topic) Close() {
+	close(t.assign)
+	close(t.unassign)
+	close(t.messages)
 }

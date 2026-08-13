@@ -2,26 +2,36 @@ package collection
 
 // simple hash set implement
 type HashSet[T comparable] struct {
-	U map[T]bool
+	u map[T]bool
 }
 
-func (s *HashSet[T]) Insert(ele T) {
-	if _, ok := s.U[ele]; ok {
+func NewHashSet[T comparable]() HashSet[T] {
+	return HashSet[T]{
+		u: make(map[T]bool),
+	}
+}
+
+func (hs *HashSet[T]) Insert(ele T) {
+	if _, ok := hs.u[ele]; ok {
 		return
 	}
 
-	s.U[ele] = true
+	hs.u[ele] = true
 }
 
-func (s *HashSet[T]) Remove(ele T) {
-	if _, ok := s.U[ele]; !ok {
+func (hs *HashSet[T]) Remove(ele T) {
+	if _, ok := hs.u[ele]; !ok {
 		return
 	}
 
-	delete(s.U, ele)
+	delete(hs.u, ele)
 }
 
-func (s *HashSet[T]) Contain(ele T) bool {
-	_, ok := s.U[ele]
+func (hs *HashSet[T]) Contain(ele T) bool {
+	_, ok := hs.u[ele]
 	return ok
+}
+
+func (hs *HashSet[T]) Data() map[T]bool {
+	return hs.u
 }
