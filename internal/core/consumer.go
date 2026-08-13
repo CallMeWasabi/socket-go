@@ -10,7 +10,7 @@ type Consumer struct {
 	Conn net.Conn  // 16 - 64 byte
 	ID   uuid.UUID // 16 byte
 
-	message chan *Message // 8 byte
+	message chan *MesssageMeta // 8 byte
 }
 
 func NewConsumer(conn net.Conn, queueSize int) *Consumer {
@@ -18,19 +18,6 @@ func NewConsumer(conn net.Conn, queueSize int) *Consumer {
 		Conn: conn,
 		ID:   uuid.New(),
 
-		message: make(chan *Message, queueSize),
+		message: make(chan *MesssageMeta, queueSize),
 	}
-}
-
-func (c *Consumer) WritePump() {
-	for msg := range c.message {
-		c.Conn.Write(msg.Content[:msg.ContentLength])
-	}
-}
-
-func (c *Consumer) Write(b []byte) {
-	msg := &Message{}
-	copy(msg.Content[:], b)
-
-	c.message <- msg
 }
