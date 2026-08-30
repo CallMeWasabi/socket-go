@@ -1,5 +1,10 @@
 # socket-go
 
+## Video and Documentation
+[Video presentation](https://youtu.be/uowZDmnExSE)
+[Documentation](https://github.com/CallMeWasabi/socket-go/blob/main/presentation/socket_go_document.pdf)
+[Presentation Slide](https://github.com/CallMeWasabi/socket-go/blob/main/presentation/socket_go_present.pdf)
+
 ## Run the protocol CLI
 
 Start the server:
@@ -45,8 +50,3 @@ seen more than once.
 The in-memory topic queue is bounded (128 pending messages by default), and a
 consumer has one in-flight delivery by default. Use `core.NewExchangeWithConfig`
 to tune the queue, retry interval, retry limit, and in-flight window.
-
-go test -bench=. -cpuprofile=cpu.prof ./perf/cpu_test.go
-go tool pprof -http=:8080 cpu.prof
-
-go test -bench=. -benchmem -memprofile=mem.out ./perf/alloc_test.go
