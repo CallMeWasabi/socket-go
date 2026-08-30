@@ -1,3 +1,4 @@
 package core
 
-type Producer struct{}
+type Producer struct {
+}

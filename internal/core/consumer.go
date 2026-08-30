@@ -10,7 +10,7 @@ type Consumer struct {
 	Conn net.Conn  // 16 - 64 byte
 	ID   uuid.UUID // 16 byte
 
-	message chan *MesssageMeta // 8 byte
+	message chan *DeliveryMeta // 8 byte
 }
 
 func NewConsumer(conn net.Conn, queueSize int) *Consumer {
@@ -18,6 +18,6 @@ func NewConsumer(conn net.Conn, queueSize int) *Consumer {
 		Conn: conn,
 		ID:   uuid.New(),
 
-		message: make(chan *MesssageMeta, queueSize),
+		message: make(chan *DeliveryMeta, queueSize),
 	}
 }
