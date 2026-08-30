@@ -2,7 +2,9 @@
 
 ## Video and Documentation
 [Video presentation](https://youtu.be/uowZDmnExSE)
+
 [Documentation](https://github.com/CallMeWasabi/socket-go/blob/main/presentation/socket_go_document.pdf)
+
 [Presentation Slide](https://github.com/CallMeWasabi/socket-go/blob/main/presentation/socket_go_present.pdf)
 
 ## Run the protocol CLI
